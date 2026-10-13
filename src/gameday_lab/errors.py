@@ -34,7 +34,13 @@ def classify(err: ProviderError) -> ErrorKind:
     * everything else (4xx)                             -> CLIENT_ERROR
     Look at ``err.status`` and ``err.code``.
     """
-    raise NotImplementedError("TODO(student): classify()")
+
+    status = err.status
+    if status in (0,408): return ErrorKind.TIMEOUT
+    if status == 429: return ErrorKind.QUOTA_EXHAUSTED if err.code == "insufficient_quota" else ErrorKind.RATE_LIMITED
+    if status in (503,529): return ErrorKind.OVERLOADED
+    if 500 <= status < 600: return ErrorKind.SERVER_ERROR
+    return ErrorKind.CLIENT_ERROR
 
 
 def is_retryable(kind: ErrorKind) -> bool:
@@ -43,7 +49,8 @@ def is_retryable(kind: ErrorKind) -> bool:
     TODO(student). Retryable: RATE_LIMITED (after retry-after), OVERLOADED,
     SERVER_ERROR, TIMEOUT. Not retryable: QUOTA_EXHAUSTED, CLIENT_ERROR.
     """
-    raise NotImplementedError("TODO(student): is_retryable()")
+
+    return kind in (ErrorKind.RATE_LIMITED, ErrorKind.OVERLOADED, ErrorKind.SERVER_ERROR, ErrorKind.TIMEOUT)
 
 
 def counts_toward_breaker(kind: ErrorKind) -> bool:
@@ -55,7 +62,8 @@ def counts_toward_breaker(kind: ErrorKind) -> bool:
          handled by a cooldown + alert), CLIENT_ERROR (our bug — every provider
          would reject it, so it must never open a breaker).
     """
-    raise NotImplementedError("TODO(student): counts_toward_breaker()")
+
+    return kind in (ErrorKind.OVERLOADED, ErrorKind.SERVER_ERROR, ErrorKind.TIMEOUT)
 
 
 def failover_helps(kind: ErrorKind) -> bool:
@@ -64,4 +72,5 @@ def failover_helps(kind: ErrorKind) -> bool:
     TODO(student). Everything except CLIENT_ERROR: a malformed request is
     malformed everywhere.
     """
-    raise NotImplementedError("TODO(student): failover_helps()")
+
+    return kind != ErrorKind.CLIENT_ERROR
