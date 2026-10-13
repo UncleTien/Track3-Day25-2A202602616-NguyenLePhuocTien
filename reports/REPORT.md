@@ -2,7 +2,7 @@
 
 **Họ tên:** Nguyễn Lê Phước Tiến  
 **Mã học viên:** 2A202602616  
-**Commit:** điền hash sau khi commit  
+**Commit:** `670c048c835b19c090fdd6fc731ddb43e2eb37aa`  
 **Điểm tự động đã xác nhận trên bộ public:** 84/88 (4 điểm SLO hidden chưa thể chấm cục bộ).
 
 ## 1. Kết quả Game Day
